@@ -1,0 +1,19 @@
+dataset: MSRVTT-QA
+data_root: <PROJECT_DATA_ROOT>/MSRVTT-QA/data
+video_dir: <PROJECT_DATA_ROOT>/MSRVTT-QA/videos
+context_mode: normal
+num_segments: 8
+d_model: 768
+batch_size: 8
+max_epochs: 20
+lr: 2.0e-5
+weight_decay: 1.0e-4
+routing_temperature: 1.2
+tau_range: [0.8, 1.8]
+k_range: [1, 6]
+entropy_floor: 0.35
+entropy_floor_weight: 0.08
+position0_penalty_weight: 0.05
+diversity_weight: 0.05
+use_straight_through: true
+seed: 42
