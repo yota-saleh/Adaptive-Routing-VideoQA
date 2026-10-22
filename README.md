@@ -66,7 +66,6 @@ Adaptive-Routing-VideoQA/
 
 The datasets analysed during this study are publicly available from the following sources:
 
-- MSVD-QA: https://github.com/xudejing/video-question-answering
 - MSRVTT-QA: https://huggingface.co/datasets/shiyili1111/MSR-VTT
 
 The data preprocessing procedures, dataset preparation pipeline, train/validation/test splits, and additional resources required to reproduce the experiments are documented in the accompanying project materials.
