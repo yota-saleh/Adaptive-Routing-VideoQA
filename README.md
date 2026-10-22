@@ -35,6 +35,15 @@ Anti-collapse routing increases entropy, effective segment count, and temporal c
 
 The overview figure combines the reported MSRVTT-QA accuracy conditions with aggregate routing diagnostics. The right panel rescales maximum-position share by four for visual comparison; the underlying values remain available in `results/metrics/adaptive_conditions.csv`.
 
+### Model Result Figures
+
+The public figure set includes selected validation accuracy and loss curves for each adaptive-routing condition:
+
+- Collapse-prone routing: [accuracy](results/figures/collapse_prone_accuracy.png), [loss](results/figures/collapse_prone_loss.png)
+- Anti-collapse routing with context: [accuracy](results/figures/anti_collapse_context_accuracy.png), [loss](results/figures/anti_collapse_context_loss.png)
+- Anti-collapse routing without context: [accuracy](results/figures/anti_collapse_no_context_accuracy.png), [loss](results/figures/anti_collapse_no_context_loss.png)
+- Question-grounded anti-collapse routing without context: [accuracy](results/figures/question_grounded_no_context_accuracy.png), [loss](results/figures/question_grounded_no_context_loss.png)
+
 ## Repository Layout
 
 ```text
