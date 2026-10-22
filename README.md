@@ -31,6 +31,10 @@ The repository intentionally excludes raw videos, annotations, extracted feature
 
 Anti-collapse routing increases entropy, effective segment count, and temporal coverage while reducing fixed-position concentration. Context remains important for answer accuracy.
 
+![Aggregate comparison of answer accuracy and routing behavior](results/figures/adaptive_routing_comparison.png)
+
+The overview figure combines the reported MSRVTT-QA accuracy conditions with aggregate routing diagnostics. The right panel rescales maximum-position share by four for visual comparison; the underlying values remain available in `results/metrics/adaptive_conditions.csv`.
+
 ## Repository Layout
 
 ```text
