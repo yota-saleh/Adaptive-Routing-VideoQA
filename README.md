@@ -1,92 +1,66 @@
 # Adaptive Temporal Routing for Video Question Answering
 
-Academic companion repository for adaptive temporal routing, routing collapse, confidence-aware selection, and context dependence in MSRVTT-QA video question answering.
+Companion repository for the paper *Does adaptive temporal routing select evidence? Collapse, confidence fallback, and context dependence in video question answering*.
 
-This release contains selected implementation components and diagnostics intended to document the method without exposing the complete training system, private data pipeline, or experiment infrastructure.
+This repository contains aggregate results, run configurations, and figures. The training and evaluation code, checkpoints, and per-question prediction and routing records are not public; they are available from the corresponding author on reasonable request.
 
-## Study Conditions
+## Study conditions
 
-- **Adaptive, collapse-prone**: adaptive routing with auxiliary context and entropy-minimizing pressure.
-- **Adaptive, anti-collapse**: adaptive routing with context, an entropy floor, position penalty, and diversity regularization.
-- **Adaptive, anti-collapse without context**: the same anti-collapse routing policy with context disabled.
-- **Question-grounded, anti-collapse without context**: anti-collapse routing over question-grounded segments, with context disabled.
+- **Adaptive, collapse-prone**: adaptive routing with context and entropy minimisation.
+- **Adaptive, anti-collapse**: adaptive routing with context and an entropy floor.
+- **Adaptive, anti-collapse without context**: the same configuration trained with an empty context string.
+- **Question-grounded, anti-collapse without context**: the router scores segments taken after the question-to-video cross-attention block; trained with an empty context string.
 
-## Public Scope
+The uniform-pooling reference **M2** comes from a companion manuscript by the same authors that is currently under consideration at another journal; it was not retrained for this work.
 
-The Python files in this repository are compact, representative samples. They show the central routing equations, regularization terms, and evaluation diagnostics, but they are not the complete training implementation used for the experiments.
+## Results on MSRVTT-QA (70,181 test questions)
 
-The repository intentionally excludes raw videos, annotations, extracted features, answer vocabularies, checkpoints, full routing records, private HPC paths, and the complete training script.
-
-## Results Summary
-
-| Condition | Context | Top-1 All | Top-1 In-Vocab | Top-3 All | Top-3 In-Vocab |
+| Model | Context | Top-1 all | Top-1 in-vocab | Top-3 all | Top-3 in-vocab |
 | --- | --- | ---: | ---: | ---: | ---: |
-| M1 Static aggregation | No | 34.81% | 35.67% | 51.67% | 52.95% |
-| M2 Uniform pooling | Yes | 46.04% | 47.18% | 63.84% | 65.43% |
-| M3 Fixed routing, k=4 | Yes | 45.78% | 46.92% | 63.48% | 65.05% |
+| M2 uniform pooling (reference) | Yes | 46.04% | 47.18% | 63.84% | 65.43% |
 | Adaptive, collapse-prone | Yes | 45.86% | 47.00% | 63.53% | 65.11% |
 | Adaptive, anti-collapse | Yes | 46.03% | 47.18% | 64.00% | 65.59% |
 | Adaptive, anti-collapse | No | 35.26% | 36.14% | 52.58% | 53.89% |
 | Question-grounded, anti-collapse | No | 35.32% | 36.20% | 51.91% | 53.20% |
 
-Anti-collapse routing increases entropy, effective segment count, and temporal coverage while reducing fixed-position concentration. Context remains important for answer accuracy.
+The test set is the preprocessed one described in `datasets/README.md`, so these accuracies are not directly comparable with results reported on the full MSRVTT-QA test set.
 
-![Aggregate comparison of answer accuracy and routing behavior](results/figures/adaptive_routing_comparison.png)
+![Accuracy and routing diagnostics](results/figures/adaptive_routing_comparison.png)
 
-The overview figure combines the reported MSRVTT-QA accuracy conditions with aggregate routing diagnostics. The right panel rescales maximum-position share by four for visual comparison; the underlying values remain available in `results/metrics/adaptive_conditions.csv`.
+The figure is drawn by `results/plot_comparison.py` from `results/metrics/adaptive_conditions.csv`; column definitions are in `results/metrics/README.md`.
 
-### Model Result Figures
+### Training curves
 
-The public figure set includes selected validation accuracy and loss curves for each adaptive-routing condition:
+- Collapse-prone: [accuracy](results/figures/collapse_prone_accuracy.png), [loss](results/figures/collapse_prone_loss.png)
+- Anti-collapse with context: [accuracy](results/figures/anti_collapse_context_accuracy.png), [loss](results/figures/anti_collapse_context_loss.png)
+- Anti-collapse without context: [accuracy](results/figures/anti_collapse_no_context_accuracy.png), [loss](results/figures/anti_collapse_no_context_loss.png)
+- Question-grounded without context: [accuracy](results/figures/question_grounded_no_context_accuracy.png), [loss](results/figures/question_grounded_no_context_loss.png)
 
-- Collapse-prone routing: [accuracy](results/figures/collapse_prone_accuracy.png), [loss](results/figures/collapse_prone_loss.png)
-- Anti-collapse routing with context: [accuracy](results/figures/anti_collapse_context_accuracy.png), [loss](results/figures/anti_collapse_context_loss.png)
-- Anti-collapse routing without context: [accuracy](results/figures/anti_collapse_no_context_accuracy.png), [loss](results/figures/anti_collapse_no_context_loss.png)
-- Question-grounded anti-collapse routing without context: [accuracy](results/figures/question_grounded_no_context_accuracy.png), [loss](results/figures/question_grounded_no_context_loss.png)
-
-## Repository Layout
+## Repository layout
 
 ```text
 Adaptive-Routing-VideoQA/
 |-- README.md
 |-- LICENSE
 |-- requirements.txt
-|-- configs/msrvtt_adaptive.yaml
+|-- configs/README.md
 |-- datasets/README.md
-|-- models/
-|   |-- README.md
-|   |-- adaptive_router.py
-|   |-- context_fusion.py
-|   `-- grounded_router.py
-|-- training/
-|   |-- objectives.py
-|   `-- evaluation.py
-|-- diagnostics/
-|   |-- README.md
-|   `-- routing_metrics.py
-|-- checkpoints/README.md
 |-- docs/README.md
+|-- checkpoints/README.md
 `-- results/
+    |-- plot_comparison.py
     |-- figures/
     `-- metrics/
 ```
 
-## Data Availability
+## Data availability
 
-The datasets analysed during this study are publicly available from the following sources:
+- MSR-VTT videos: https://huggingface.co/datasets/shiyili1111/MSR-VTT
 
-- MSRVTT-QA: https://huggingface.co/datasets/shiyili1111/MSR-VTT
-
-The data preprocessing procedures, dataset preparation pipeline, train/validation/test splits, and additional resources required to reproduce the experiments are documented in the accompanying project materials.
-
-## Requirements
-
-PyTorch is intentionally not pinned because the HPC environment provides the CUDA/PyTorch installation.
+## Regenerating the comparison figure
 
 ```bash
 pip install -r requirements.txt
+python results/plot_comparison.py
 ```
 
-## Reproducibility Note
-
-This is a method and diagnostics companion. It is not intended to reproduce the complete training run without the protected data preparation, feature extraction, answer vocabulary, checkpoint, and experiment-management components.

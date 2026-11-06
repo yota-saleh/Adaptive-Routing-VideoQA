@@ -7,6 +7,7 @@
   "oov_rate": 0.024265826933215544,
   "mean_routing_entropy": 1.3073541962544653,
   "effective_segments": 3.696380864609981,
-  "max_position_share": 0.785682737827301,
-  "mean_temporal_coverage": 0.6679211609979909
+  "mean_temporal_coverage": 0.6679211609979909,
+  "max_selection_rate": 0.785682737827301,
+  "top_weight_share": 0.3046
 }

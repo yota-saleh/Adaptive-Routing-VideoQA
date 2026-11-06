@@ -1,4 +1,4 @@
-"""Create the public, aggregate comparison figure from reported metrics."""
+"""Draw the aggregate comparison figure from results/metrics/adaptive_conditions.csv."""
 
 from pathlib import Path
 
@@ -6,51 +6,46 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parent
-conditions = [
-    "M1 static\naggregation", "M2 uniform\npooling", "M3 fixed\nrouting",
-    "Adaptive\ncollapse-prone", "Adaptive\nanti-collapse\n(context)",
-    "Adaptive\nanti-collapse\n(no context)", "Question-grounded\nanti-collapse",
-]
-accuracy = pd.DataFrame(
-    {"Top-1 all": [34.81, 46.04, 45.78, 45.86, 46.03, 35.26, 35.32],
-     "Top-3 all": [51.67, 63.84, 63.48, 63.53, 64.00, 52.58, 51.91]},
-    index=conditions,
-)
 routing = pd.read_csv(ROOT / "metrics" / "adaptive_conditions.csv")
-routing_labels = ["Collapse-prone", "Anti-collapse\n(context)",
-                  "Anti-collapse\n(no context)", "Question-grounded\n(no context)"]
 
-fig, (left, right) = plt.subplots(1, 2, figsize=(15, 6), constrained_layout=True)
-x = np.arange(len(accuracy))
-width = 0.36
-left.bar(x - width / 2, accuracy["Top-1 all"], width, label="Top-1 All", color="#2878B5")
-left.bar(x + width / 2, accuracy["Top-3 all"], width, label="Top-3 All", color="#F28E2B")
-left.set_title("MSRVTT-QA answer accuracy", weight="bold")
-left.set_ylabel("Accuracy (%)")
-left.set_xticks(x, accuracy.index, rotation=25, ha="right")
-left.set_ylim(0, 75)
-left.grid(axis="y", alpha=0.25)
-left.legend(frameon=False)
+# Uniform-pooling reference M2 (from the companion manuscript) and the four adaptive routers.
+models = ["M2 uniform\npooling", "Collapse-\nprone", "Anti-collapse\n(context)",
+          "Anti-collapse\n(no context)", "Question-grounded\n(no context)"]
+top1 = [46.04] + list(100 * routing["top1_all"])
+top3 = [63.84] + list(100 * routing["top3_all"])
+labels = ["Collapse-\nprone", "Anti-collapse\n(context)", "Anti-collapse\n(no context)",
+          "Question-grounded\n(no context)"]
 
-x2 = np.arange(len(routing))
-right.plot(x2, routing["mean_entropy"], marker="o", linewidth=2.5, label="Routing entropy")
-right.plot(x2, routing["effective_segments"], marker="s", linewidth=2.5, label="Effective segments")
-right.set_ylim(-0.1, 4.0)
-right_secondary = right.twinx()
-right_secondary.plot(x2, routing["max_position_share"], marker="^", linewidth=2.5,
-                     color="#59A14F", label="Max-position share")
-right_secondary.set_ylim(0, 1.05)
-right.set_title("Routing diagnostics", weight="bold")
-right.set_ylabel("Entropy / effective segments")
-right_secondary.set_ylabel("Max-position share")
-right.set_xticks(x2, routing_labels, rotation=25, ha="right")
-right.grid(axis="y", alpha=0.25)
-handles, labels = right.get_legend_handles_labels()
-handles2, labels2 = right_secondary.get_legend_handles_labels()
-right.legend(handles + handles2, labels + labels2, frameon=False, fontsize=9, loc="lower right")
+plt.rcParams.update({"font.size": 10})
+fig, (left, mid, right) = plt.subplots(1, 3, figsize=(17, 4.8), constrained_layout=True,
+                                     gridspec_kw={"width_ratios": [1.45, 1, 1]})
 
-fig.suptitle("Adaptive Temporal Routing: Accuracy and Routing Behavior", fontsize=16, weight="bold")
-fig.savefig(ROOT / "figures" / "adaptive_routing_comparison.png", dpi=300, bbox_inches="tight")
+x = np.arange(len(models)); w = 0.38
+left.bar(x - w / 2, top1, w, label="Top-1", color="#2E6DB4")
+left.bar(x + w / 2, top3, w, label="Top-3", color="#C0571F", hatch="//", edgecolor="white")
+left.set_xticks(x, models, fontsize=8.5)
+left.set_ylabel("Test accuracy (%)"); left.set_ylim(0, 75); left.legend(frameon=False)
+left.set_title("(a) MSRVTT-QA accuracy", loc="left")
+
+x2 = np.arange(len(labels))
+mid.bar(x2, routing["effective_segments"], 0.6, color="#2E6DB4")
+for i, v in enumerate(routing["effective_segments"]):
+    mid.text(i, v + 0.06, f"{v:.2f}", ha="center")
+mid.set_xticks(x2, labels, fontsize=8.5); mid.set_ylim(0, 4.3)
+mid.set_ylabel("Effective segments, exp(mean entropy)")
+mid.set_title("(b) Weight spread", loc="left")
+
+w2 = 0.38
+right.bar(x2 - w2 / 2, 100 * routing["top_weight_share"], w2, label="Top-weight share", color="#2E6DB4")
+right.bar(x2 + w2 / 2, 100 * routing["mean_confidence"], w2, label="Mean confidence", color="#5E8C31",
+          hatch="..", edgecolor="white")
+right.set_xticks(x2, labels, fontsize=8.5); right.set_ylim(0, 110)
+right.set_ylabel("Percent")
+right.set_title("(c) Concentration and confidence", loc="left"); right.legend(frameon=False)
+
+for a in (left, mid, right):
+    a.spines[["top", "right"]].set_visible(False)
+
+fig.savefig(ROOT / "figures" / "adaptive_routing_comparison.png", dpi=300)
 plt.close(fig)
