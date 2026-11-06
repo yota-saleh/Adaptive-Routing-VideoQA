@@ -2,7 +2,7 @@
 
 Companion repository for the paper *Does adaptive temporal routing select evidence? Collapse, confidence fallback, and context dependence in video question answering*.
 
-This repository contains aggregate results, run configurations, and figures. The training and evaluation code, checkpoints, and per-question prediction and routing records are not public; they are available from the corresponding author on reasonable request.
+This repository contains the adaptive router, its training objectives, and the routing diagnostics as they were used in the experiments, together with aggregate results, run configurations, and figures. The backbones, data pipeline, complete training and evaluation scripts, checkpoints, and per-question prediction and routing records are not public; they are available from the corresponding author on reasonable request.
 
 ## Study conditions
 
@@ -36,6 +36,17 @@ The figure is drawn by `results/plot_comparison.py` from `results/metrics/adapti
 - Anti-collapse without context: [accuracy](results/figures/anti_collapse_no_context_accuracy.png), [loss](results/figures/anti_collapse_no_context_loss.png)
 - Question-grounded without context: [accuracy](results/figures/question_grounded_no_context_accuracy.png), [loss](results/figures/question_grounded_no_context_loss.png)
 
+## Released code
+
+| File | Contents | Paper |
+| --- | --- | --- |
+| `models/adaptive_router.py` | Complexity estimator, additive scorer with positional embeddings, adaptive top-K_c selection, straight-through weights, confidence-aware blend | Eqs. 1-5 |
+| `training/objectives.py` | Entropy minimisation, entropy floor, InfoNCE with false-negative masking, ranking, load-balancing, first-segment, and usage-diversity terms | Section 3.4, Table 1 |
+| `diagnostics/routing_metrics.py` | Entropy, effective segments, top-weight share, first-segment rate, coverage, confidence, selection patterns, within-video Jaccard, rank-biserial correlation | Section 4.4, Tables 4 and 8 |
+| `tests/test_router.py` | Shape checks and the gradient paths stated in Table 1 | Table 1 |
+
+Run the checks with `pip install -r requirements.txt` and `python -m pytest -q tests`.
+
 ## Repository layout
 
 ```text
@@ -47,6 +58,10 @@ Adaptive-Routing-VideoQA/
 |-- datasets/README.md
 |-- docs/README.md
 |-- checkpoints/README.md
+|-- models/adaptive_router.py
+|-- training/objectives.py
+|-- diagnostics/routing_metrics.py
+|-- tests/test_router.py
 `-- results/
     |-- plot_comparison.py
     |-- figures/
@@ -60,7 +75,6 @@ Adaptive-Routing-VideoQA/
 ## Regenerating the comparison figure
 
 ```bash
-pip install -r requirements.txt
 python results/plot_comparison.py
 ```
 
